@@ -1,0 +1,13 @@
+# requirements.txt
+
+python-dotenv
+SQLAlchemy
+psycopg[binary]
+pgvector
+groq
+langchain-community
+langchain-text-splitters
+langchain-huggingface
+
+pypdf
+sentence-transformers
