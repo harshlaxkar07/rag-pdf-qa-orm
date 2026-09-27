@@ -1,0 +1,88 @@
+/* PDF question answering console — project styling on the shared UI system. */
+:root { --accent-h: 160; --accent-s: 70%; --accent-l: 42%; }
+
+.conn {
+  display: flex; align-items: center; gap: 8px;
+  font-size: .78rem; color: var(--text-muted);
+  padding: 7px 10px; border-radius: var(--radius-sm); background: var(--surface-2);
+}
+.conn .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-dim); flex: 0 0 7px; }
+.conn.online .dot { background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+.conn.offline .dot { background: var(--danger); box-shadow: 0 0 0 3px var(--danger-soft); }
+
+.ask-form { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.ask-form .search-input { flex: 1 1 320px; }
+.inline-field { flex-direction: row; align-items: center; gap: 8px; }
+.inline-field span { font-size: .8rem; color: var(--text-muted); white-space: nowrap; }
+.inline-field .select { width: auto; }
+
+.chip-row { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+.chip {
+  border: 1px solid var(--border); background: var(--surface-2);
+  color: var(--text-muted); border-radius: 99px;
+  padding: 5px 13px; font-size: .8rem; cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+.answer-card { border-left: 3px solid var(--accent); }
+.answer-text { font-size: .95rem; line-height: 1.78; }
+.answer-text p { margin: 0 0 12px; }
+.answer-text p:last-child { margin-bottom: 0; }
+.answer-text ul, .answer-text ol { margin: 0 0 12px; padding-left: 22px; display: flex; flex-direction: column; gap: 5px; }
+.answer-text li::marker { color: var(--accent); }
+.answer-text code {
+  background: var(--surface-2); border: 1px solid var(--border);
+  padding: 1px 6px; border-radius: 5px; font-family: var(--mono); font-size: .85em;
+}
+.answer-text pre {
+  background: var(--bg-elev); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 13px 15px; overflow-x: auto; margin: 0 0 12px;
+}
+.answer-text pre code { background: none; border: none; padding: 0; }
+
+.source {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--bg-elev); overflow: hidden;
+}
+.source-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px; cursor: pointer; width: 100%;
+  background: none; border: none; text-align: left; color: var(--text);
+  transition: background .12s;
+}
+.source-head:hover { background: var(--surface-2); }
+.source-rank {
+  width: 22px; height: 22px; flex: 0 0 22px; border-radius: 7px;
+  display: grid; place-items: center; font-size: .7rem; font-weight: 700;
+  background: var(--accent-soft); color: var(--accent);
+}
+.source-name { flex: 1; min-width: 0; font-size: .85rem; font-weight: 560; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.source-chev { transition: transform .2s var(--ease); color: var(--text-dim); display: grid; }
+.source.open .source-chev { transform: rotate(90deg); }
+.source-body { padding: 0 14px 14px; display: none; }
+.source.open .source-body { display: block; }
+.source-content {
+  font-size: .83rem; line-height: 1.7; color: var(--text-muted);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+  max-height: 260px; overflow-y: auto; white-space: pre-wrap; word-break: break-word;
+}
+
+.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; font-size: .87rem; color: var(--text-muted); }
+.steps li::marker { color: var(--accent); font-weight: 700; }
+.steps b { color: var(--text); font-weight: 620; }
+
+code {
+  background: var(--surface-2); padding: 1px 6px; border-radius: 5px;
+  border: 1px solid var(--border); color: var(--text-muted);
+}
+
+.doc-cell { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.doc-icon {
+  width: 32px; height: 32px; flex: 0 0 32px; border-radius: 9px;
+  display: grid; place-items: center; background: var(--accent-soft); color: var(--accent);
+}
+.doc-icon svg { width: 16px; height: 16px; }
+
+@media (max-width: 560px) { .ask-form { flex-direction: column; align-items: stretch; } }

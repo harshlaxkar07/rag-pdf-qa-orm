@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PDF Q&A · ORM</title>
+<meta name="description" content="Console for the PDF question-answering pipeline — ingest documents, ask grounded questions and inspect the chunks behind every answer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/ui.css">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctext y='19' font-size='20'%3E%F0%9F%93%9A%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark" data-icon="book" data-size="18"></div>
+      <div class="brand-text">
+        <div class="brand-name">PDF Q&amp;A</div>
+        <div class="brand-sub">SQLAlchemy ORM</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-label">Workspace</div>
+      <a class="nav-item" data-nav="ask" href="#ask"><span data-icon="sparkles" data-size="17"></span> Ask</a>
+      <a class="nav-item" data-nav="ingest" href="#ingest"><span data-icon="upload" data-size="17"></span> Ingest PDFs</a>
+      <a class="nav-item" data-nav="library" href="#library"><span data-icon="database" data-size="17"></span> Library <span class="count" data-count="docs">—</span></a>
+      <a class="nav-item" data-nav="about" href="#about"><span data-icon="layers" data-size="17"></span> How it works</a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="conn" id="conn"><span class="dot"></span><span class="conn-text">Checking API...</span></div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="btn btn-ghost btn-icon menu-btn" data-icon="menu" data-size="19" aria-label="Open navigation"></button>
+      <h1 data-page-title>Ask</h1>
+      <div class="spacer"></div>
+      <span class="badge accent" id="storeBadge">SQLAlchemy ORM</span>
+      <button class="btn btn-ghost btn-icon" id="refresh" title="Reload" data-icon="refresh" data-size="18"></button>
+      <button class="btn btn-ghost btn-icon" data-theme-toggle></button>
+    </header>
+
+    <div class="content">
+
+      <section class="page" data-page="ask" data-title="Ask">
+        <div class="page-head">
+          <h2>Ask your library</h2>
+          <p>Questions are embedded, matched against every stored chunk by vector similarity, and answered from the retrieved passages. The chunks behind each answer are shown alongside it.</p>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-body">
+            <form id="askForm" class="ask-form">
+              <div class="search-input">
+                <span data-icon="search" data-size="16"></span>
+                <input class="input" id="question" placeholder="What does the document say about..." autocomplete="off">
+              </div>
+              <label class="field inline-field">
+                <span>Sources</span>
+                <select class="select" id="topK">
+                  <option>3</option><option selected>4</option><option>5</option><option>8</option>
+                </select>
+              </label>
+              <button class="btn btn-primary" type="submit" id="askBtn"><span data-icon="sparkles" data-size="15"></span> Ask</button>
+            </form>
+            <div class="chip-row" id="examples"></div>
+          </div>
+        </div>
+
+        <div id="answer"></div>
+      </section>
+
+      <section class="page" data-page="ingest" data-title="Ingest PDFs">
+        <div class="page-head">
+          <h2>Add documents to the index</h2>
+          <p>Each PDF is loaded page by page, split into overlapping chunks, embedded, and written to the vector store ready to be retrieved.</p>
+        </div>
+
+        <div class="grid cols-2">
+          <div class="card">
+            <div class="card-body">
+              <div class="dropzone" id="dropzone">
+                <div class="dropzone-icon" data-icon="upload" data-size="22"></div>
+                <div class="dropzone-title">Drop PDFs here</div>
+                <div class="dropzone-hint">or click to browse &mdash; several files at a time is fine</div>
+                <input type="file" accept="application/pdf" multiple>
+              </div>
+              <div id="queue" class="stack mt-2"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>The ingestion pipeline</h3></div>
+            <div class="card-body">
+              <ol class="steps">
+                <li><b>Load</b> &mdash; every page of the PDF is read into a document object with its page number kept as metadata.</li>
+                <li><b>Split</b> &mdash; text is chunked at 1000 characters with a 200-character overlap so sentences are never cut in half.</li>
+                <li><b>Embed</b> &mdash; each chunk becomes a 384-dimension vector from <code>all-MiniLM-L6-v2</code>.</li>
+                <li><b>Store</b> &mdash; vectors and metadata land in PostgreSQL through the SQLAlchemy ORM with a pgvector column, indexed for cosine similarity.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" data-page="library" data-title="Library">
+        <div class="page-head">
+          <h2>Indexed library</h2>
+          <p>Every document that has been embedded, with the number of chunks it contributed to the store.</p>
+        </div>
+
+        <div class="grid cols-3 mb-3" id="libStats"></div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>Documents</h3>
+            <div class="spacer"></div>
+            <span class="badge" id="libBadge">—</span>
+          </div>
+          <div id="libTable"></div>
+        </div>
+      </section>
+
+      <section class="page" data-page="about" data-title="How it works">
+        <div class="page-head">
+          <h2>How this build works</h2>
+          <p>This build models the vector store as a declarative SQLAlchemy entity. Chunks are ordinary mapped objects with a pgvector column, so similarity search is expressed as a normal ORM query and every row is a typed Python object.</p>
+        </div>
+
+        <div class="grid cols-2">
+          <div class="card">
+            <div class="card-head"><h3>Retrieval</h3></div>
+            <div class="card-body">
+              <dl class="kv">
+                <dt>Embedding model</dt><dd class="mono">sentence-transformers/all-MiniLM-L6-v2</dd>
+                <dt>Vector size</dt><dd>384 dimensions</dd>
+                <dt>Distance</dt><dd>Cosine similarity</dd>
+                <dt>Chunk size</dt><dd>1000 characters, 200 overlap</dd>
+                <dt>Store</dt><dd>PostgreSQL through the SQLAlchemy ORM with a pgvector column</dd>
+              </dl>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Generation</h3></div>
+            <div class="card-body">
+              <dl class="kv">
+                <dt>Provider</dt><dd>Groq</dd>
+                <dt>Grounding</dt><dd>Answers use only the retrieved passages</dd>
+                <dt>Citations</dt><dd>Filename and page for every source</dd>
+                <dt>Temperature</dt><dd>Low, for consistent answers</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script src="assets/ui.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
